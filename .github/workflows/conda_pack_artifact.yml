@@ -14,12 +14,11 @@ jobs:
           activate-environment: conda_pack_env
           environment-file: env.yml
           auto-activate-base: false
-      - name: Conda info
+      - name: Install Repo Code into Environment
         shell: bash -l {0}
         run: |
-          conda info
-          conda list
           pip install conda-pack
+          pip install .
           conda-pack -o macos_py37_condapack_deploy.tar.gz
       - name: Upload artifact
         uses: actions/upload-artifact@v1.0.0
