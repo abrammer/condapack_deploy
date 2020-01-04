@@ -1,0 +1,29 @@
+name: conda_pack_artifact
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: goanpeca/setup-miniconda@v1.0.2
+        with:
+          activate-environment: conda_pack_env
+          environment-file: env.yml
+          auto-activate-base: false
+      - name: Install Repo Code into Environment
+        shell: bash -l {0}
+        run: |
+          pip install conda-pack
+          pip install .
+          conda-pack -o condapack_deploy_macos_py37.tar.gz
+      - name: Upload artifact
+        uses: actions/upload-artifact@v1.0.0
+        with:
+          # Artifact name
+          name: macos_py37_condapack_deploy
+          # Directory containing files to upload
+          path: ./condapack_deploy_macos_py37.tar.gz
