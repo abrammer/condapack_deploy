@@ -20,14 +20,11 @@ jobs:
           conda info
           conda list
           pip install conda-pack
-#       - name: Install dependencies
-#         run: |
-#           pip install conda-pack
-#           conda-pack -o macos_py37_condapack_deploy.tar.gz
-#       - name: Upload artifact
-#         uses: actions/upload-artifact@v1.0.0
-#         with:
-#           # Artifact name
-#           name: macos_py37_condapack_deploy.tar.gz
-#           # Directory containing files to upload
-#           path: ./macos_py37_condapack_deploy.tar.gz
+          conda-pack -o macos_py37_condapack_deploy.tar.gz
+      - name: Upload artifact
+        uses: actions/upload-artifact@v1.0.0
+        with:
+          # Artifact name
+          name: macos_py37_condapack_deploy.tar.gz
+          # Directory containing files to upload
+          path: ./macos_py37_condapack_deploy.tar.gz
