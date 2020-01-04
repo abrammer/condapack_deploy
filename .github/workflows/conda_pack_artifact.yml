@@ -15,5 +15,5 @@ jobs:
           auto-activate-base: false
       - name: Install dependencies
         run: |
-          pip install -r conda-pack
+          pip install conda-pack
           conda-pack
