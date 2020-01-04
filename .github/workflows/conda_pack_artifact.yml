@@ -8,6 +8,7 @@ jobs:
     runs-on: macos-latest
 
     steps:
+      - uses: actions/checkout@v2
       - uses: goanpeca/setup-miniconda@v1.0.2
         with:
           activate-environment: conda_pack_env
