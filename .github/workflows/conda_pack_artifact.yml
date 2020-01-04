@@ -12,6 +12,7 @@ jobs:
     - name: Set up Conda Env with Python 3.7
       uses: goanpeca/setup-miniconda@v1.0.2
       with:
+        activate-environment: conda_pack_env
         environment-file: env.yml
     - name: Install dependencies
       run: |
