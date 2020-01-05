@@ -24,13 +24,14 @@ jobs:
       - name: artifact the upload url
         shell: bash
         run: |
-            echo "${{ steps.create_release.outputs.upload_url }}" >> release_url
-            cat release_url
+            mkdir release
+            echo "${{ steps.create_release.outputs.upload_url }}" >> release/upload_url
+            cat release/upload_url
       - name: upload artifact
         uses: actions/upload-artifact@v1.0.0
         with:
-            name: release_url
-            path: ./release_url
+            name: release
+            path: ./release/upload_url
     
   build:
     runs-on: macos-latest
@@ -57,18 +58,18 @@ jobs:
       - name: download artifact
         uses: actions/download-artifact@v1
         with:
-            name: release_url
+            name: release
       - name: check url
         shell: bash
         run: |
-            cat ./release_url
+            cat ./release/upload_url
       - name: Upload Release Asset
         id: upload-release-asset 
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: $(cat ./release_url) 
+          upload_url: $(cat ./release/upload_url) 
           asset_path: ./condapack_deploy_macos_py37.tar.gz
           asset_name: condapack_deploy_macos_py37.tar.gz
           asset_content_type: application/zip
