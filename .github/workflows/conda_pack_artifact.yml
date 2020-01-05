@@ -8,10 +8,22 @@ on:
 
 
 jobs:
+  create_release:
+    runs-on: linux
+    steps:
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+    
   build:
-
     runs-on: macos-latest
-
     steps:
       - uses: actions/checkout@v2
       - uses: goanpeca/setup-miniconda@v1.0.2
@@ -29,19 +41,9 @@ jobs:
         uses: actions/upload-artifact@v1.0.0
         with:
           # Artifact name
-          name: macos_py37_condapack_deploy
+          name: condapack_deploy_macos_py37
           # Directory containing files to upload
           path: ./condapack_deploy_macos_py37.tar.gz
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1.0.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
       - name: Upload Release Asset
         id: upload-release-asset 
         uses: actions/upload-release-asset@v1.0.1
