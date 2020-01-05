@@ -9,7 +9,7 @@ on:
 
 jobs:
   create_release:
-    runs-on: linux
+    runs-on: ubuntu-latest
     steps:
       - name: Create Release
         id: create_release
