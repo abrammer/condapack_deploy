@@ -5,8 +5,8 @@ on:
     # Sequence of patterns matched against refs/tags
     tags:
     - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
-    branches:
-    - 'master'
+#    branches:
+#    - 'master'
 
 
 jobs:
@@ -28,12 +28,12 @@ jobs:
         run: |
             mkdir release
             echo "${{ steps.create_release.outputs.upload_url }}" >> release/upload_url
-            cat release/upload_url
+            echo "${{ steps.create_release.outputs.id }}" >> release/id
       - name: upload artifact
         uses: actions/upload-artifact@v1.0.0
         with:
             name: release
-            path: ./release/upload_url
+            path: ./release/
     
   build:
     runs-on: ${{ matrix.os }}
@@ -70,7 +70,9 @@ jobs:
         id: github_release
         run: |
             cat ./release/upload_url
+            cat ./release/id
             echo "##[set-output name=upload_url;]$(cat ./release/upload_url)"
+            echo "##[set-output name=id;]$(cat ./release/id)"
       - name: Upload Release Asset
         id: upload-release-asset 
         uses: actions/upload-release-asset@v1.0.1
