@@ -1,17 +1,52 @@
-name: conda_pack_artifact
+name: pack and upload release 
 
-on: [push]
+on:
+  push:
+    # Sequence of patterns matched against refs/tags
+    tags:
+    - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+    branches:
+    - 'master'
+
 
 jobs:
+  create_release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: true
+          prerelease: false
+      - name: artifact the upload url
+        shell: bash
+        run: |
+            mkdir release
+            echo "${{ steps.create_release.outputs.upload_url }}" >> release/upload_url
+            echo "${{ steps.create_release.outputs.id }}" >> release/id
+      - name: upload artifact
+        uses: actions/upload-artifact@v1.0.0
+        with:
+            name: release
+            path: ./release/
+    
   build:
-
-    runs-on: macos-latest
-
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest ]
+        python: [3.7,]
     steps:
       - uses: actions/checkout@v2
       - uses: goanpeca/setup-miniconda@v1.0.2
         with:
           activate-environment: conda_pack_env
+          python-version: ${{ matrix.python }}
           environment-file: env.yml
           auto-activate-base: false
       - name: Install Repo Code into Environment
@@ -19,11 +54,57 @@ jobs:
         run: |
           pip install conda-pack
           pip install .
-          conda-pack -o condapack_deploy_macos_py37.tar.gz
+          conda-pack -o condapack_deploy_${{matrix.os}}_py${{matrix.python}}.tar.gz
       - name: Upload artifact
         uses: actions/upload-artifact@v1.0.0
         with:
           # Artifact name
-          name: macos_py37_condapack_deploy
+          name: condapack_deploy_${{matrix.os}}_py${{matrix.python}}
           # Directory containing files to upload
-          path: ./condapack_deploy_macos_py37.tar.gz
+          path: ./condapack_deploy_${{matrix.os}}_py${{matrix.python}}.tar.gz
+      - name: download artifact
+        uses: actions/download-artifact@v1
+        with:
+            name: release
+      - name: github_release
+        id: github_release
+        run: |
+            cat ./release/upload_url
+            cat ./release/id
+            echo "##[set-output name=upload_url;]$(cat ./release/upload_url)"
+            echo "##[set-output name=id;]$(cat ./release/id)"
+      - name: Upload Release Asset
+        id: upload-release-asset 
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url:  ${{ steps.github_release.outputs.upload_url }} 
+          asset_path: ./condapack_deploy_${{matrix.os}}_py${{matrix.python}}.tar.gz
+          asset_name: condapack_deploy_${{matrix.os}}_py${{matrix.python}}.tar.gz
+          asset_content_type: application/zip
+
+  publish_release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: download artifact
+        uses: actions/download-artifact@v1
+        with:
+            name: release
+      - name: github_release
+        id: github_release
+        run: |
+           cat ./release/upload_url
+           cat ./release/id
+           echo "##[set-output name=upload_url;]$(cat ./release/upload_url)"
+           echo "##[set-output name=id;]$(cat ./release/id)"
+      - name: publish release
+        shell: bash
+        run: |
+          echo "https://api.github.com/repos/${{github.repository}}/releases/${{ steps.github_release.outputs.id}}"
+          curl \
+          --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
+          --data '{"draft": "false"}' \
+          -X PATCH https://api.github.com/repos/${{github.repository}}/releases/${{ steps.github_release.outputs.id}}
+
