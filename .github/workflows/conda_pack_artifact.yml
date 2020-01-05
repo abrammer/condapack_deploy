@@ -34,12 +34,17 @@ jobs:
             path: ./release/upload_url
     
   build:
-    runs-on: macos-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest ]
+        python: [3.7,]
     steps:
       - uses: actions/checkout@v2
       - uses: goanpeca/setup-miniconda@v1.0.2
         with:
           activate-environment: conda_pack_env
+          python-version: ${{ matrix.python }}
           environment-file: env.yml
           auto-activate-base: false
       - name: Install Repo Code into Environment
@@ -47,14 +52,14 @@ jobs:
         run: |
           pip install conda-pack
           pip install .
-          conda-pack -o condapack_deploy_macos_py37.tar.gz
+          conda-pack -o condapack_deploy_${{matrix.os}}_py${{matrix.python}}.tar.gz
       - name: Upload artifact
         uses: actions/upload-artifact@v1.0.0
         with:
           # Artifact name
-          name: condapack_deploy_macos_py37
+          name: condapack_deploy_${{matrix.os}}_py${{matrix.python}}
           # Directory containing files to upload
-          path: ./condapack_deploy_macos_py37.tar.gz
+          path: ./condapack_deploy_${{matrix.os}}_py${{matrix.python}}.tar.gz
       - name: download artifact
         uses: actions/download-artifact@v1
         with:
@@ -71,6 +76,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url:  ${{ steps.github_release.outputs.upload_url }} 
-          asset_path: ./condapack_deploy_macos_py37.tar.gz
-          asset_name: condapack_deploy_macos_py37.tar.gz
+          asset_path: ./condapack_deploy_${{matrix.os}}_py${{matrix.python}}.tar.gz
+          asset_name: condapack_deploy_${{matrix.os}}_py${{matrix.python}}.tar.gz
           asset_content_type: application/zip
