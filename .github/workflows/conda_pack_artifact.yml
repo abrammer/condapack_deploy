@@ -85,6 +85,7 @@ jobs:
           asset_content_type: application/zip
 
   publish_release:
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: github_release
