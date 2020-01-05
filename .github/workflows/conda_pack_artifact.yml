@@ -3,14 +3,13 @@ name: pack and upload release
 on:
   push:
     # Sequence of patterns matched against refs/tags
-    tags:
-    - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
-    branches:
-    - 'master'
+   tags:
+   - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
 
 
 jobs:
   create_release:
+    if: github.event.base_ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
       - name: Create Release
@@ -63,10 +62,12 @@ jobs:
           # Directory containing files to upload
           path: ./condapack_deploy_${{matrix.os}}_py${{matrix.python}}.tar.gz
       - name: download artifact
+        if: github.event.base_ref == 'refs/heads/master'
         uses: actions/download-artifact@v1
         with:
             name: release
       - name: github_release
+        if: github.event.base_ref == 'refs/heads/master'
         id: github_release
         run: |
             cat ./release/upload_url
@@ -74,6 +75,7 @@ jobs:
             echo "##[set-output name=upload_url;]$(cat ./release/upload_url)"
             echo "##[set-output name=id;]$(cat ./release/id)"
       - name: Upload Release Asset
+        if: github.event.base_ref == 'refs/heads/master'
         id: upload-release-asset 
         uses: actions/upload-release-asset@v1.0.1
         env:
@@ -85,6 +87,7 @@ jobs:
           asset_content_type: application/zip
 
   publish_release:
+    if: github.event.base_ref == 'refs/heads/master'
     needs: build
     runs-on: ubuntu-latest
     steps:
