@@ -60,6 +60,7 @@ jobs:
         with:
             name: release
       - name: github_release
+        id: github_release
         run: |
             cat ./release/upload_url
             echo "##[set-output name=upload_url;]$(cat ./release/upload_url)"
