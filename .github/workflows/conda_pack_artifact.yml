@@ -88,6 +88,10 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - name: download artifact
+        uses: actions/download-artifact@v1
+        with:
+            name: release
       - name: github_release
         id: github_release
         run: |
