@@ -24,7 +24,8 @@ jobs:
       - name: artifact the upload url
         shell: bash
         run: |
-            echo ${{ steps.create_release.outputs.upload_url }} >> release_url
+            echo "${{ steps.create_release.outputs.upload_url }}" >> release_url
+            cat release_url
       - name: upload artifact
         uses: actions/upload-artifact@v1.0.0
         with:
@@ -57,7 +58,10 @@ jobs:
         uses: actions/download-artifact@v1
         with:
             name: release_url
-
+      - name: check url
+        shell: bash
+        run: |
+            cat ./release_url
       - name: Upload Release Asset
         id: upload-release-asset 
         uses: actions/upload-release-asset@v1.0.1
