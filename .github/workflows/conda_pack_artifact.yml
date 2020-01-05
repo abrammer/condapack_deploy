@@ -59,17 +59,17 @@ jobs:
         uses: actions/download-artifact@v1
         with:
             name: release
-      - name: check url
-        shell: bash
+      - name: github release
         run: |
             cat ./release/upload_url
+            echo "##[set-output name=upload_url;]$(cat ./release/upload_url)"
       - name: Upload Release Asset
         id: upload-release-asset 
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: $(cat ./release/upload_url) 
+          upload_url:  ${{ steps.github_release.upload_url }} 
           asset_path: ./condapack_deploy_macos_py37.tar.gz
           asset_name: condapack_deploy_macos_py37.tar.gz
           asset_content_type: application/zip
