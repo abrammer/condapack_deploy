@@ -63,7 +63,7 @@ jobs:
           path: ./condapack_deploy_${{matrix.os}}_py${{matrix.python}}.tar.gz
       - name: download artifact
         if: github.event.base_ref == 'refs/heads/master'
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4.1.7
         with:
             name: release
       - name: github_release
@@ -92,7 +92,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: download artifact
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4.1.7
         with:
             name: release
       - name: github_release
